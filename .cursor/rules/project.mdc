@@ -1,0 +1,11 @@
+---
+description: demo-mcp project constraints for AI agents
+alwaysApply: true
+---
+
+Read AGENTS.md before coding.
+
+- API-first: edit api/openapi.yaml before Go handlers.
+- Tool logic only in internal/tools/*.
+- Keep MCP tool names aligned with OpenAPI x-mcp-tool-name.
+- Run make verify-discoverability before finishing.

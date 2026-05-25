@@ -1,0 +1,28 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.nni-hotel/demo-mcp",
+  "title": "AI Tool Infrastructure (Base64)",
+  "version": "0.1.0",
+  "description": "Deterministic Base64 encode/decode for agents. UTF-8 text only.",
+  "repository": {
+    "url": "https://github.com/nni-hotel/demo-mcp",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "docker",
+      "identifier": "ghcr.io/nni-hotel/demo-mcp:0.1.0",
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ],
+  "remotes": [
+    {
+      "url": "https://api.demo-mcp.dev/mcp",
+      "transport": {
+        "type": "streamable-http"
+      }
+    }
+  ]
+}

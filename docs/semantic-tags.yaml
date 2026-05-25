@@ -1,0 +1,18 @@
+# Semantic tags for agent routing and GEO. Keep in sync with OpenAPI x-tool-semantic-tags.
+base64_encode:
+  intents: [encode, base64, convert_to_base64]
+  entities: [text, utf8, string]
+  anti_patterns: [binary_file, image, encrypt, hash]
+  related_tools: [base64_decode]
+  mcp_tool_name: base64_encode
+  rest_operation_id: base64Encode
+  openapi_path: /v1/tools/base64/encode
+
+base64_decode:
+  intents: [decode, base64, convert_from_base64]
+  entities: [text, utf8, string]
+  anti_patterns: [binary_file, image, decrypt]
+  related_tools: [base64_encode]
+  mcp_tool_name: base64_decode
+  rest_operation_id: base64Decode
+  openapi_path: /v1/tools/base64/decode

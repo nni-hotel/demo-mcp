@@ -1,0 +1,27 @@
+# demo-mcp AI Tool Infrastructure
+
+> Deterministic utility APIs and MCP tools for agents. v0.1: Base64 encode/decode (UTF-8 text only).
+
+## API
+
+- [OpenAPI 3.1 JSON](https://api.demo-mcp.dev/openapi.json): REST contract for all tools
+- [OpenAPI YAML](https://api.demo-mcp.dev/openapi.yaml): Human-readable specification
+- [Tool catalog](https://api.demo-mcp.dev/v1/tools): Machine-readable tool index with MCP name mapping
+- [API catalog](https://api.demo-mcp.dev/.well-known/api-catalog): RFC 9727-style discovery for agents
+
+## MCP
+
+- [server.json](https://github.com/nni-hotel/demo-mcp/blob/main/server.json): MCP Registry metadata (io.github.nni-hotel/demo-mcp)
+- [MCP setup](https://github.com/nni-hotel/demo-mcp/blob/main/docs/mcp-setup.md): stdio and streamable-http configuration
+
+## Tools
+
+- [Base64 tool](https://github.com/nni-hotel/demo-mcp/blob/main/docs/tools/base64.md): When to use, examples, error codes
+
+## Errors
+
+- [Error codes](https://github.com/nni-hotel/demo-mcp/blob/main/docs/errors.md): Machine-readable error dictionary for agents
+
+## Optional
+
+- [llms-full.txt](https://api.demo-mcp.dev/llms-full.txt): Bundled documentation for RAG and inference

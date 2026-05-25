@@ -1,0 +1,165 @@
+# demo-mcp (full)
+
+# demo-mcp AI Tool Infrastructure
+
+> Deterministic utility APIs and MCP tools for agents. v0.1: Base64 encode/decode (UTF-8 text only).
+
+## API
+
+- [OpenAPI 3.1 JSON](https://api.demo-mcp.dev/openapi.json): REST contract for all tools
+- [OpenAPI YAML](https://api.demo-mcp.dev/openapi.yaml): Human-readable specification
+- [Tool catalog](https://api.demo-mcp.dev/v1/tools): Machine-readable tool index with MCP name mapping
+- [API catalog](https://api.demo-mcp.dev/.well-known/api-catalog): RFC 9727-style discovery for agents
+
+## MCP
+
+- [server.json](https://github.com/nni-hotel/demo-mcp/blob/main/server.json): MCP Registry metadata (io.github.nni-hotel/demo-mcp)
+- [MCP setup](https://github.com/nni-hotel/demo-mcp/blob/main/docs/mcp-setup.md): stdio and streamable-http configuration
+
+## Tools
+
+- [Base64 tool](https://github.com/nni-hotel/demo-mcp/blob/main/docs/tools/base64.md): When to use, examples, error codes
+
+## Errors
+
+- [Error codes](https://github.com/nni-hotel/demo-mcp/blob/main/docs/errors.md): Machine-readable error dictionary for agents
+
+## Optional
+
+- [llms-full.txt](https://api.demo-mcp.dev/llms-full.txt): Bundled documentation for RAG and inference
+
+---
+
+# Base64 tools
+
+Encode or decode **UTF-8 text** with deterministic output. Not for binary files.
+
+## When to use
+
+- User asks to encode text to Base64 (standard or URL-safe)
+- User asks to decode a Base64 string to text
+- Agent needs a reliable, stateless transform with predictable output
+
+## When NOT to use
+
+- Binary files, images, or encrypted payloads
+- Password hashing or encryption (use dedicated crypto tools)
+- Large payloads over 1 MiB (split input or use streaming tools)
+
+## Tools
+
+| MCP tool | REST | Deterministic |
+|----------|------|---------------|
+| `base64_encode` | `POST /v1/tools/base64/encode` | Yes |
+| `base64_decode` | `POST /v1/tools/base64/decode` | Yes |
+
+## Request
+
+```json
+{
+  "input": "hello",
+  "alphabet": "standard",
+  "padding": true
+}
+```
+
+- `alphabet`: `standard` (RFC 4648) or `url` (URL-safe)
+- `padding`: include `=` padding (default `true`)
+
+## Response
+
+```json
+{
+  "data": { "output": "aGVsbG8=" },
+  "meta": {
+    "tool": "base64.encode",
+    "input_bytes": 5,
+    "output_bytes": 8,
+    "duration_ms": 0.05
+  }
+}
+```
+
+## Examples
+
+| Action | Input | Output |
+|--------|-------|--------|
+| Encode | `hello` | `aGVsbG8=` |
+| Decode | `aGVsbG8=` | `hello` |
+| URL encode (no padding) | `hello`, alphabet `url`, padding `false` | varies |
+
+## Semantic tags
+
+See [semantic-tags.yaml](../semantic-tags.yaml): `encoding`, `base64`, `text`, `utf8`.
+
+---
+
+# Error codes (machine-readable)
+
+All errors use this envelope:
+
+```json
+{
+  "error": { "code": "INVALID_BASE64", "message": "...", "details": {} },
+  "meta": { "request_id": "..." }
+}
+```
+
+| Code | HTTP | Agent retry | When |
+|------|------|-------------|------|
+| `INVALID_REQUEST` | 400 | No | Malformed JSON or invalid parameters (e.g. unknown alphabet) |
+| `INVALID_BASE64` | 400 | No | Decode input is not valid Base64; ask user to fix input |
+| `PAYLOAD_TOO_LARGE` | 413 | No | Body exceeds `TOOLINFRA_MAX_BODY_BYTES` (default 1 MiB) |
+| `INTERNAL_ERROR` | 500 | Once | Unexpected server failure; backoff and retry at most once |
+
+OpenAPI enum: `components.schemas.ErrorCode` in [api/openapi.yaml](../api/openapi.yaml).
+
+---
+
+# MCP setup
+
+Registry name: `io.github.nni-hotel/demo-mcp`
+
+## stdio (Cursor / Claude Desktop)
+
+Build or install `toolinfra`, then add to Cursor MCP settings:
+
+```json
+{
+  "mcpServers": {
+    "demo-mcp": {
+      "command": "toolinfra",
+      "args": ["mcp", "stdio"]
+    }
+  }
+}
+```
+
+Windows (development):
+
+```json
+{
+  "mcpServers": {
+    "demo-mcp": {
+      "command": "go",
+      "args": ["run", "./cmd/toolinfra", "mcp", "stdio"],
+      "cwd": "C:\\path\\to\\demo-mcp"
+    }
+  }
+}
+```
+
+## Streamable HTTP
+
+Run the server with MCP HTTP enabled:
+
+```bash
+toolinfra serve --api --mcp-http
+```
+
+Default endpoint: `http://localhost:8081/mcp` (set `TOOLINFRA_MCP_HTTP_ADDR`, `TOOLINFRA_MCP_HTTP_PATH`).
+
+## Tools
+
+- `base64_encode` — encode UTF-8 text to Base64
+- `base64_decode` — decode Base64 to UTF-8 text

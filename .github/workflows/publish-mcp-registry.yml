@@ -1,0 +1,33 @@
+name: Publish MCP Registry
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate server.json
+        run: |
+          test -f server.json
+          grep -q 'io.github.nni-hotel/demo-mcp' server.json
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: deployments/Dockerfile
+          push: ${{ github.event_name == 'release' }}
+          tags: |
+            ghcr.io/nni-hotel/demo-mcp:${{ github.ref_name }}
+            ghcr.io/nni-hotel/demo-mcp:latest
+      - name: Publish to MCP Registry (manual token)
+        if: github.event_name == 'release'
+        run: |
+          echo "Install mcp-publisher and run: mcp-publisher publish"
+          echo "Requires REGISTRY_TOKEN from GitHub OAuth — see https://modelcontextprotocol.io/registry/quickstart"

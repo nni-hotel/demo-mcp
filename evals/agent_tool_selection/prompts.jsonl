@@ -1,0 +1,10 @@
+{"prompt": "encode the string hello to base64", "expected_tool": "base64_encode"}
+{"prompt": "convert hello to base64", "expected_tool": "base64_encode"}
+{"prompt": "base64 encode hello world", "expected_tool": "base64_encode"}
+{"prompt": "I need aGVsbG8= decoded to text", "expected_tool": "base64_decode"}
+{"prompt": "decode this base64: aGVsbG8=", "expected_tool": "base64_decode"}
+{"prompt": "what is the utf8 text for base64 aGVsbG8=", "expected_tool": "base64_decode"}
+{"prompt": "url-safe base64 encode hello without padding", "expected_tool": "base64_encode"}
+{"prompt": "turn my text into base64 standard alphabet", "expected_tool": "base64_encode"}
+{"prompt": "reverse base64 string aGVsbG8=", "expected_tool": "base64_decode"}
+{"prompt": "please base64-decode YQ", "expected_tool": "base64_decode"}

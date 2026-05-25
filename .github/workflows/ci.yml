@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.26.x"
+      - name: Generate discoverability artifacts
+        run: |
+          npm install yaml --no-save
+          node -e "const fs=require('fs');const yaml=require('yaml');const d=yaml.parse(fs.readFileSync('api/openapi.yaml','utf8'));fs.writeFileSync('internal/discoverability/spec/openapi.json',JSON.stringify(d,null,2));"
+          cp docs/site/llms.txt internal/discoverability/spec/llms.txt
+          node -e "const fs=require('fs');const p=['# demo-mcp\n\n',fs.readFileSync('docs/site/llms.txt','utf8'),'\n---\n\n',fs.readFileSync('docs/tools/base64.md','utf8'),'\n---\n\n',fs.readFileSync('docs/errors.md','utf8'),'\n---\n\n',fs.readFileSync('docs/mcp-setup.md','utf8')];fs.writeFileSync('internal/discoverability/spec/llms-full.txt',p.join(''));"
+      - run: go mod tidy
+      - run: go fmt ./...
+      - run: make validate-spec
+      - run: make test-unit
+      - run: make test-integration
+      - run: node scripts/verify_discoverability.mjs

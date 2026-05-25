@@ -1,0 +1,40 @@
+# Binaries
+/bin/
+/dist/
+/toolinfra
+/toolinfra.exe
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Go
+*.test
+*.out
+coverage.out
+coverage.html
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.local
+
+# Node (generate-discoverability)
+node_modules/
+package-lock.json
+
+# npm yaml helper (optional local)
+node_modules
+
+# Docker
+.docker/

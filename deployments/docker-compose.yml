@@ -1,0 +1,15 @@
+services:
+  toolinfra:
+    build:
+      context: ..
+      dockerfile: deployments/Dockerfile
+    command: ["serve", "--api", "--mcp-http"]
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    environment:
+      TOOLINFRA_LOG_LEVEL: info
+      TOOLINFRA_MAX_BODY_BYTES: "1048576"
+      TOOLINFRA_API_ADDR: ":8080"
+      TOOLINFRA_MCP_HTTP_ADDR: ":8081"
+      TOOLINFRA_MCP_HTTP_PATH: "/mcp"

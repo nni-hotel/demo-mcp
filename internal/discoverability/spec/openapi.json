@@ -1,0 +1,601 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "demo-mcp AI Tool Infrastructure API",
+    "version": "0.1.0",
+    "description": "Deterministic utility tools for LLM, Agent, and MCP clients.\nUTF-8 text only (not binary files). Same input always yields same output.\nMCP tools: base64_encode, base64_decode map to REST paths below.\n",
+    "contact": {
+      "name": "nni-hotel",
+      "url": "https://github.com/nni-hotel/demo-mcp"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    },
+    "x-ai-instructions": "Prefer MCP tools base64_encode/base64_decode for agent workflows.\nUse REST when MCP is unavailable. Check /v1/tools for catalog.\n"
+  },
+  "servers": [
+    {
+      "url": "https://api.demo-mcp.dev",
+      "description": "Production"
+    },
+    {
+      "url": "http://localhost:8080",
+      "description": "Local development"
+    }
+  ],
+  "tags": [
+    {
+      "name": "base64",
+      "description": "Use when encoding or decoding UTF-8 text with Base64 (standard or URL-safe alphabet)."
+    },
+    {
+      "name": "discoverability",
+      "description": "Machine-readable catalogs and specs for agents (OpenAPI, tool index, llms.txt)."
+    },
+    {
+      "name": "health",
+      "description": "Liveness and readiness probes for orchestrators."
+    },
+    {
+      "name": "metrics",
+      "description": "Prometheus metrics exposition."
+    }
+  ],
+  "paths": {
+    "/v1/tools": {
+      "get": {
+        "operationId": "listTools",
+        "tags": [
+          "discoverability"
+        ],
+        "summary": "Machine-readable tool catalog",
+        "description": "Lists all tools with REST paths, MCP names, and semantic tags for agent routing.",
+        "responses": {
+          "200": {
+            "description": "Tool catalog",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ToolCatalog"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/tools/base64/encode": {
+      "post": {
+        "operationId": "base64Encode",
+        "tags": [
+          "base64"
+        ],
+        "summary": "Encode UTF-8 text to Base64",
+        "description": "Use when the user needs to encode UTF-8 text to standard or URL-safe Base64.\nDo not use for binary files. Same input always yields same output.\nExample: encode(\"hello\") -> \"aGVsbG8=\"\n",
+        "x-mcp-tool-name": "base64_encode",
+        "x-tool-semantic-tags": [
+          "encoding",
+          "base64",
+          "text",
+          "utf8"
+        ],
+        "x-deterministic": true,
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Base64Request"
+              },
+              "examples": {
+                "standardHello": {
+                  "summary": "Standard alphabet",
+                  "value": {
+                    "input": "hello",
+                    "alphabet": "standard",
+                    "padding": true
+                  }
+                },
+                "urlSafe": {
+                  "summary": "URL-safe, no padding",
+                  "value": {
+                    "input": "hello",
+                    "alphabet": "url",
+                    "padding": false
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Encoded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ToolResponse"
+                },
+                "examples": {
+                  "hello": {
+                    "value": {
+                      "data": {
+                        "output": "aGVsbG8="
+                      },
+                      "meta": {
+                        "tool": "base64.encode",
+                        "input_bytes": 5,
+                        "output_bytes": 8,
+                        "duration_ms": 0.05
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "x-agent-retry": false
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "x-agent-retry": false
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "x-agent-retry": "once"
+          }
+        }
+      }
+    },
+    "/v1/tools/base64/decode": {
+      "post": {
+        "operationId": "base64Decode",
+        "tags": [
+          "base64"
+        ],
+        "summary": "Decode Base64 to UTF-8 text",
+        "description": "Use when the user needs to decode Base64 to UTF-8 text.\nDo not use for binary files. Invalid Base64 returns INVALID_BASE64; do not retry blindly.\nExample: decode(\"aGVsbG8=\") -> \"hello\"\n",
+        "x-mcp-tool-name": "base64_decode",
+        "x-tool-semantic-tags": [
+          "decoding",
+          "base64",
+          "text",
+          "utf8"
+        ],
+        "x-deterministic": true,
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Base64Request"
+              },
+              "examples": {
+                "standardHello": {
+                  "value": {
+                    "input": "aGVsbG8=",
+                    "alphabet": "standard",
+                    "padding": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Decoded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ToolResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or invalid base64",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "x-agent-retry": false
+          },
+          "413": {
+            "description": "Payload too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "x-agent-retry": false
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "x-agent-retry": "once"
+          }
+        }
+      }
+    },
+    "/openapi.json": {
+      "get": {
+        "operationId": "getOpenAPIJSON",
+        "tags": [
+          "discoverability"
+        ],
+        "summary": "OpenAPI 3.1 specification (JSON)",
+        "responses": {
+          "200": {
+            "description": "OpenAPI document",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/openapi.yaml": {
+      "get": {
+        "operationId": "getOpenAPIYAML",
+        "tags": [
+          "discoverability"
+        ],
+        "summary": "OpenAPI 3.1 specification (YAML)",
+        "responses": {
+          "200": {
+            "description": "OpenAPI document",
+            "content": {
+              "text/yaml": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/llms.txt": {
+      "get": {
+        "operationId": "getLLMsTxt",
+        "tags": [
+          "discoverability"
+        ],
+        "summary": "LLM documentation index (llms.txt spec)",
+        "responses": {
+          "200": {
+            "description": "llms.txt markdown index",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/healthz": {
+      "get": {
+        "operationId": "healthz",
+        "tags": [
+          "health"
+        ],
+        "summary": "Liveness probe",
+        "responses": {
+          "200": {
+            "description": "Service is alive",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/readyz": {
+      "get": {
+        "operationId": "readyz",
+        "tags": [
+          "health"
+        ],
+        "summary": "Readiness probe",
+        "responses": {
+          "200": {
+            "description": "Service is ready",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/metrics": {
+      "get": {
+        "operationId": "metrics",
+        "tags": [
+          "metrics"
+        ],
+        "summary": "Prometheus metrics",
+        "responses": {
+          "200": {
+            "description": "Prometheus text exposition",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Alphabet": {
+        "type": "string",
+        "enum": [
+          "standard",
+          "url"
+        ],
+        "default": "standard",
+        "description": "standard: RFC 4648; url: URL-safe Base64"
+      },
+      "Base64Request": {
+        "type": "object",
+        "required": [
+          "input"
+        ],
+        "properties": {
+          "input": {
+            "type": "string",
+            "description": "UTF-8 text (encode) or Base64 string (decode). Not for binary files.",
+            "x-semantic-role": "input"
+          },
+          "alphabet": {
+            "$ref": "#/components/schemas/Alphabet"
+          },
+          "padding": {
+            "type": "boolean",
+            "default": true,
+            "description": "Include padding characters (=). Set false for URL-safe unpadded output."
+          }
+        }
+      },
+      "Base64Data": {
+        "type": "object",
+        "required": [
+          "output"
+        ],
+        "properties": {
+          "output": {
+            "type": "string",
+            "x-semantic-role": "output"
+          }
+        }
+      },
+      "ToolMeta": {
+        "type": "object",
+        "required": [
+          "tool",
+          "input_bytes",
+          "output_bytes",
+          "duration_ms"
+        ],
+        "properties": {
+          "tool": {
+            "type": "string",
+            "example": "base64.encode",
+            "x-semantic-role": "metadata"
+          },
+          "input_bytes": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "output_bytes": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "duration_ms": {
+            "type": "number",
+            "format": "double",
+            "minimum": 0
+          }
+        }
+      },
+      "ToolResponse": {
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Base64Data"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ToolMeta"
+          }
+        }
+      },
+      "ErrorCode": {
+        "type": "string",
+        "enum": [
+          "INVALID_REQUEST",
+          "INVALID_BASE64",
+          "PAYLOAD_TOO_LARGE",
+          "INTERNAL_ERROR"
+        ]
+      },
+      "ErrorBody": {
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "message": {
+            "type": "string"
+          },
+          "details": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      },
+      "ErrorMeta": {
+        "type": "object",
+        "properties": {
+          "request_id": {
+            "type": "string"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/ErrorBody"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ErrorMeta"
+          }
+        }
+      },
+      "HealthResponse": {
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok"
+            ]
+          }
+        }
+      },
+      "ToolCatalogEntry": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "mcp_tool_name",
+          "rest_path",
+          "method",
+          "deterministic"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "mcp_tool_name": {
+            "type": "string"
+          },
+          "rest_path": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string"
+          },
+          "deterministic": {
+            "type": "boolean"
+          },
+          "semantic_tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      },
+      "ToolCatalog": {
+        "type": "object",
+        "required": [
+          "version",
+          "tools"
+        ],
+        "properties": {
+          "version": {
+            "type": "string"
+          },
+          "openapi": {
+            "type": "string",
+            "format": "uri"
+          },
+          "tools": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ToolCatalogEntry"
+            }
+          }
+        }
+      }
+    }
+  }
+}
