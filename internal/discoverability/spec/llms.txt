@@ -4,10 +4,10 @@
 
 ## API
 
-- [OpenAPI 3.1 JSON](https://api.demo-mcp.dev/openapi.json): REST contract for all tools
-- [OpenAPI YAML](https://api.demo-mcp.dev/openapi.yaml): Human-readable specification
-- [Tool catalog](https://api.demo-mcp.dev/v1/tools): Machine-readable tool index with MCP name mapping
-- [API catalog](https://api.demo-mcp.dev/.well-known/api-catalog): RFC 9727-style discovery for agents
+- [OpenAPI 3.1 JSON](https://api.boji.today/openapi.json): REST contract for all tools
+- [OpenAPI YAML](https://api.boji.today/openapi.yaml): Human-readable specification
+- [Tool catalog](https://api.boji.today/v1/tools): Machine-readable tool index with MCP name mapping
+- [API catalog](https://api.boji.today/.well-known/api-catalog): RFC 9727-style discovery for agents
 
 ## MCP
 
@@ -24,4 +24,4 @@
 
 ## Optional
 
-- [llms-full.txt](https://api.demo-mcp.dev/llms-full.txt): Bundled documentation for RAG and inference
+- [llms-full.txt](https://api.boji.today/llms-full.txt): Bundled documentation for RAG and inference

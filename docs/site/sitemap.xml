@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://demo-mcp.dev/</loc></url>
-  <url><loc>https://demo-mcp.dev/llms.txt</loc></url>
-  <url><loc>https://demo-mcp.dev/docs/tools/base64.html</loc></url>
-  <url><loc>https://api.demo-mcp.dev/openapi.json</loc></url>
+  <url><loc>https://api.boji.today/</loc></url>
+  <url><loc>https://api.boji.today/llms.txt</loc></url>
+  <url><loc>https://api.boji.today/docs/tools/base64.html</loc></url>
+  <url><loc>https://api.boji.today/openapi.json</loc></url>
 </urlset>

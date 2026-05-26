@@ -16,7 +16,7 @@ info:
     Prefer MCP tools base64_encode/base64_decode for agent workflows.
     Use REST when MCP is unavailable. Check /v1/tools for catalog.
 servers:
-  - url: https://api.demo-mcp.dev
+  - url: https://api.boji.today
     description: Production
   - url: http://localhost:8080
     description: Local development

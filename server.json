@@ -19,7 +19,7 @@
   ],
   "remotes": [
     {
-      "url": "https://api.demo-mcp.dev/mcp",
+      "url": "https://mcp.boji.today/mcp",
       "transport": {
         "type": "streamable-http"
       }

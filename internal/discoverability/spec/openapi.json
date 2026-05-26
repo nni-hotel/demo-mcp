@@ -16,7 +16,7 @@
   },
   "servers": [
     {
-      "url": "https://api.demo-mcp.dev",
+      "url": "https://api.boji.today",
       "description": "Production"
     },
     {
